@@ -77,7 +77,7 @@ function UserProfileFooter() {
     <div className="mx-4 mb-4">
       <button
         onClick={openProfile}
-        className="flex items-center gap-3 w-full px-3 py-2.5 text-sm rounded-md transition-all duration-200 ease-in-out cursor-pointer text-text-secondary hover:bg-background-hover hover:text-text-primary bg-background-card border border-border-subtle min-w-0"
+        className="flex items-center gap-3 w-full px-3 py-2.5 text-sm rounded-md transition-all duration-200 ease-in-out cursor-pointer text-text-secondary hover:bg-background-hover hover:text-text-primary bg-background-card border-2 border-border-subtle min-w-0 font-virgil shadow-sm hover:shadow-none hover:translate-y-[1px]"
       >
         <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-accent-blue to-purple-600 text-white">
           {avatarUrl ? (
@@ -108,7 +108,7 @@ function SearchButton({ onClick }: { onClick: () => void }) {
     <div className="mx-4">
       <button
         onClick={onClick}
-        className="flex items-center justify-between w-full px-3 py-3 text-sm rounded-md transition-all duration-200 ease-in-out cursor-pointer text-text-muted hover:bg-background-hover hover:text-text-primary bg-background-card border border-border-subtle group"
+        className="flex items-center justify-between w-full px-3 py-3 text-sm rounded-md transition-all duration-200 ease-in-out cursor-pointer text-text-muted hover:bg-background-hover hover:text-text-primary bg-background-card border-2 border-border-subtle group font-virgil shadow-sm hover:shadow-none hover:translate-y-[1px]"
       >
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <Search className="h-4 w-4 flex-shrink-0 group-hover:text-accent-blue transition-colors" />
@@ -135,7 +135,7 @@ function FoldersSection({
   return (
     <div className="mx-4">
       <div className="flex items-center justify-between px-3 py-2 mb-2 min-w-0">
-        <div className="flex items-center gap-2 text-text-primary min-w-0 flex-1">
+        <div className="flex items-center gap-2 text-text-primary min-w-0 flex-1 font-virgil">
           <Folder className="h-4 w-4 flex-shrink-0" />
           <span className="font-medium text-sm truncate">Folders</span>
         </div>
@@ -255,10 +255,10 @@ function FolderItem({
     <button
       onClick={onSelect}
       className={cn(
-        "group relative flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 ease-in-out cursor-pointer w-full text-left min-w-0",
+        "group relative flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all duration-200 ease-in-out cursor-pointer w-full text-left min-w-0 font-virgil",
         isSelected
-          ? "bg-accent-blue/10 text-text-primary border border-accent-blue/20"
-          : "text-text-secondary hover:bg-background-hover hover:text-text-primary"
+          ? "bg-accent-blue/10 text-text-primary border-2 border-accent-blue/20"
+          : "text-text-secondary hover:bg-background-hover hover:text-text-primary border-2 border-transparent hover:border-text-muted"
       )}
     >
       {/* Folder Icon */}
@@ -347,10 +347,10 @@ function PageItem({ page, isActive }: SidebarItemProps) {
       to="/page/$id"
       params={{ id: page.page_id }}
       className={cn(
-        "group relative flex items-center gap-3 px-3 py-2.5 text-sm rounded-md transition-all duration-200 ease-in-out cursor-pointer w-full min-w-0",
+        "group relative flex items-center gap-3 px-3 py-2.5 text-sm rounded-md transition-all duration-200 ease-in-out cursor-pointer w-full min-w-0 font-virgil",
         isActive
-          ? "bg-accent-blue/10 text-text-primary border border-accent-blue/20"
-          : "text-text-secondary hover:bg-background-hover hover:text-text-primary"
+          ? "bg-accent-blue/10 text-text-primary border-2 border-accent-blue/20"
+          : "text-text-secondary hover:bg-background-hover hover:text-text-primary border-2 border-transparent hover:border-text-muted"
       )}
     >
       {/* Thumbnail */}

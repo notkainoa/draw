@@ -16,44 +16,74 @@
   :root {
     --radius: 0.5rem; /* 8px */
 
-    /* Actual Lazy.so Colors (from screenshots) */
+    /* Excalidraw-inspired Colors */
     /* Primary Colors */
-    --primary: #0a0a0a; /* Very dark background */
-    --secondary-slate: #1a1a1a; /* Slightly lighter dark */
-    --medium-gray: #2a2a2a; /* Medium dark gray */
+    --primary: #ffffff;
+    --secondary-slate: #f8f9fa;
+    --medium-gray: #e9ecef;
 
     /* Accent Colors */
-    --accent-blue: #3b82f6; /* Clean blue */
-    --accent-yellow: #fbbf24; /* Subtle yellow */
+    --accent-blue: #6965db; /* Excalidraw Purple */
+    --accent-yellow: #ffc9c9; /* Soft red/pink accent */
 
     /* Background Colors */
-    --background-main: #0a0a0a; /* Very dark main background */
-    --background-card: #1a1a1a; /* Dark card background */
-    --background-input: #1a1a1a; /* Dark input background */
-    --background-hover: #2a2a2a; /* Hover state */
+    --background-main: #ffffff;
+    --background-card: #ffffff;
+    --background-input: #ffffff;
+    --background-hover: #e9ecef;
 
     /* Text Colors */
-    --text-primary: #ffffff; /* Pure white primary text */
-    --text-secondary: #a1a1aa; /* Muted secondary text */
-    --text-muted: #71717a; /* Very muted text */
+    --text-primary: #1e1e1e;
+    --text-secondary: #495057;
+    --text-muted: #868e96;
 
     /* Border/Divider */
-    --border-subtle: #2a2a2a; /* Very subtle borders */
-    --border-input: #3a3a3a; /* Input borders */
+    --border-subtle: #ced4da;
+    --border-input: #ced4da;
 
     /* Component specific */
-    --button-radius: 6px;
-    --input-radius: 6px;
-    --card-radius: 8px;
-    --modal-radius: 12px;
-    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --button-shadow: none;
+    --button-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    --input-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    --card-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    --modal-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    --card-shadow: 2px 2px 0px rgba(0, 0, 0, 0.15);
+    --button-shadow: 2px 2px 0px rgba(0, 0, 0, 0.15);
 
     /* Spacing */
     --section-margin: 24px;
     --component-margin: 12px;
     --element-padding: 8px;
     --element-padding-lg: 16px;
+  }
+
+  .dark {
+    /* Excalidraw Dark Mode Colors */
+    /* Primary Colors */
+    --primary: #121212;
+    --secondary-slate: #232329;
+    --medium-gray: #31303b;
+
+    /* Accent Colors */
+    --accent-blue: #a5a1ff; /* Lighter purple for dark mode */
+    --accent-yellow: #ffc9c9;
+
+    /* Background Colors */
+    --background-main: #121212;
+    --background-card: #232329;
+    --background-input: #232329;
+    --background-hover: #31303b;
+
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #ced4da;
+    --text-muted: #868e96;
+
+    /* Border/Divider */
+    --border-subtle: #495057;
+    --border-input: #495057;
+    
+    --card-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+    --button-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -66,23 +96,27 @@
 
   /* Removed custom-excalidraw-button and hamburger menu shifting styles */
 
-  /* Clean, minimal component styles matching Lazy.so */
+  /* Sketchy component styles matching Excalidraw */
   .sidebar-nav-item {
     background-color: transparent;
     color: var(--text-secondary);
-    border-radius: 6px;
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
     transition: all 200ms ease-in-out;
     padding: 8px 12px;
+    border: 1px solid transparent;
   }
 
   .sidebar-nav-item:hover {
     background-color: var(--background-hover);
     color: var(--text-primary);
+    border-color: var(--text-muted);
   }
 
   .sidebar-nav-item.active {
     background-color: var(--background-hover);
     color: var(--text-primary);
+    border-color: var(--text-primary);
+    border-width: 2px;
   }
 
   /* Sidebar section headers */

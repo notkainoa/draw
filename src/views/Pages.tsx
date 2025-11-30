@@ -314,14 +314,14 @@ export default function Pages() {
                 onChange={(e) => setEditingName(e.target.value)}
                 onBlur={() => handleFolderNameUpdate(editingName)}
                 onKeyDown={handleNameKeyPress}
-                className="h-12 px-3 text-2xl font-bold bg-background-input border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-blue/50 focus:border-accent-blue"
+                className="h-12 px-3 text-2xl font-bold bg-background-input border-2 border-border rounded-lg text-text-primary focus:outline-none focus:border-accent-blue font-virgil shadow-sm"
                 autoFocus
               />
             </div>
           ) : (
             <button
               onClick={startEditingName}
-              className="h-12 px-3 text-2xl font-bold text-text-primary hover:bg-background-hover rounded-lg transition-all duration-200 text-left"
+              className="h-12 px-3 text-2xl font-bold text-text-primary hover:bg-background-hover rounded-lg transition-all duration-200 text-left font-virgil"
               title="Click to edit folder name"
             >
               {selectedFolder?.name || "Untitled Folder"}

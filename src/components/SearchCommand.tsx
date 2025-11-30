@@ -265,17 +265,17 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <Command
-          className="rounded-modal border border-border-subtle bg-background-card overflow-hidden"
-          style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)' }}
+          className="rounded-modal border-2 border-border-subtle bg-background-card overflow-hidden font-virgil"
+          style={{ boxShadow: '4px 4px 0px rgba(0, 0, 0, 0.2)' }}
           shouldFilter={false}
         >
-          <div className="flex items-center border-b border-border-subtle px-4 py-3">
+          <div className="flex items-center border-b-2 border-border-subtle px-4 py-3">
             <Search className="mr-3 h-5 w-5 shrink-0 text-text-muted" />
             <Command.Input
               value={search}
               onValueChange={setSearch}
               placeholder="Search folders and drawings..."
-              className="flex h-8 w-full bg-transparent text-base outline-none placeholder:text-text-muted disabled:cursor-not-allowed disabled:opacity-50 text-text-primary"
+              className="flex h-8 w-full bg-transparent text-base outline-none placeholder:text-text-muted disabled:cursor-not-allowed disabled:opacity-50 text-text-primary font-virgil"
               autoFocus
             />
             {search && (
@@ -304,13 +304,13 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
                     value={result.id}
                     onSelect={() => handleResultSelect(result)}
                     className={cn(
-                      "relative flex cursor-pointer select-none items-center rounded-md px-3 py-3 text-sm outline-none transition-all duration-150",
-                      "hover:bg-background-hover",
-                      "data-[selected]:bg-background-hover",
+                      "relative flex cursor-pointer select-none items-center rounded-md px-3 py-3 text-sm outline-none transition-all duration-150 border-2 border-transparent",
+                      "hover:bg-background-hover hover:border-text-muted",
+                      "data-[selected]:bg-background-hover data-[selected]:border-text-muted",
                       index > 0 && "mt-1"
                     )}
                   >
-                    <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-md bg-background-main">
+                    <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-md bg-background-main border-2 border-border-subtle">
                       {result.icon}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -323,10 +323,10 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
                       </div>
                     </div>
                     <div className={cn(
-                      "ml-2 text-xs px-2 py-1 rounded capitalize",
+                      "ml-2 text-xs px-2 py-1 rounded capitalize border-2",
                       result.type === 'action'
-                        ? "bg-accent-blue/10 text-accent-blue border border-accent-blue/20"
-                        : "bg-background-main text-text-muted"
+                        ? "bg-accent-blue/10 text-accent-blue border-accent-blue/20"
+                        : "bg-background-main text-text-muted border-border-subtle"
                     )}>
                       {result.type === 'drawing' ? 'drawing' : result.type}
                     </div>
