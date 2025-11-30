@@ -16,7 +16,8 @@ import {
   Folder,
   Edit,
   Trash2,
-  ChevronLeft
+  ChevronLeft,
+  Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -124,6 +125,29 @@ function SearchButton({ onClick }: { onClick: () => void }) {
 }
 
 
+
+function HomeButton({
+  isSelected,
+  onClick
+}: {
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div className="mx-4 mb-4">
+      <button
+        onClick={onClick}
+        className={cn(
+          "flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md transition-all duration-200 ease-in-out cursor-pointer text-text-secondary hover:bg-background-hover hover:text-text-primary",
+          isSelected && "bg-accent-blue/10 text-text-primary border border-accent-blue/20"
+        )}
+      >
+        <Home className="h-4 w-4 flex-shrink-0" />
+        <span className="font-medium truncate">Home</span>
+      </button>
+    </div>
+  );
+}
 
 function FoldersSection({
   children,
@@ -509,6 +533,8 @@ export default function Sidebar({ className }: SidebarProps) {
   function handleBackToDashboard() {
     if (currentFolder) {
       setSelectedFolderId(currentFolder.folder_id);
+    } else {
+      setSelectedFolderId(null); // Back to Home
     }
     navigate({ to: "/pages" });
   }
@@ -516,31 +542,12 @@ export default function Sidebar({ className }: SidebarProps) {
   // Handle folder deletion
   async function handleDeleteFolder(folderId: string) {
     // Find the folder being deleted
-    const folderToDelete = folders?.find(f => f.folder_id === folderId);
-
-    // Prevent deleting if it's the only folder
-    if (folders && folders.length <= 1) {
-      toast("Cannot delete folder", {
-        description: "You must have at least one folder. Create another folder before deleting this one.",
-      });
-      return;
-    }
-
-    // Prevent deleting the default folder (usually named "My Drawings" or the oldest folder)
-    const defaultFolder = folders?.find(f => f.name === "My Drawings") ||
-                         folders?.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())[0];
-
-    if (folderToDelete?.folder_id === defaultFolder?.folder_id) {
-      toast("Cannot delete the default folder", {
-        description: "This folder cannot be deleted as it's your default folder.",
-      });
-      return;
-    }
+    // const folderToDelete = folders?.find(f => f.folder_id === folderId);
 
     // Show confirmation dialog
     const pageCount = pageCounts[folderId] || 0;
     const confirmMessage = pageCount > 0
-      ? `Are you sure you want to delete this folder? All ${pageCount} drawing(s) in this folder will be moved to your default folder.`
+      ? `Are you sure you want to delete this folder? All ${pageCount} drawing(s) in this folder will be moved to your Home workspace.`
       : "Are you sure you want to delete this folder?";
 
     if (!confirm(confirmMessage)) {
@@ -555,15 +562,9 @@ export default function Sidebar({ className }: SidebarProps) {
       queryClient.invalidateQueries({ queryKey: ["folderPages"] });
       queryClient.invalidateQueries({ queryKey: ["folderPageCounts"] });
 
-      // If the deleted folder was selected, select the first available folder
+      // If the deleted folder was selected, go to Home
       if (selectedFolderId === folderId) {
-        // Select the first available folder, or null if none left
-        const remainingFolders = folders?.filter(f => f.folder_id !== folderId) || [];
-        if (remainingFolders.length > 0) {
-          setSelectedFolderId(remainingFolders[0].folder_id);
-        } else {
-          setSelectedFolderId(null);
-        }
+        setSelectedFolderId(null);
       }
 
       toast("Successfully deleted folder!");
@@ -595,35 +596,42 @@ export default function Sidebar({ className }: SidebarProps) {
 
         {/* Conditional Content Based on Route */}
         {isOnPagesView ? (
-          /* Folders Section for Pages View - Show folders only, no individual pages */
-          <FoldersSection
-            onCreateFolder={handleCreateFolder}
-          >
-            {foldersLoading ? (
-              <div className="px-3 py-4">
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-text-muted border-t-transparent" />
-                  <span className="text-xs text-text-muted">Loading...</span>
+          <>
+            <HomeButton
+              isSelected={selectedFolderId === null}
+              onClick={() => setSelectedFolderId(null)}
+            />
+
+            {/* Folders Section for Pages View - Show folders only, no individual pages */}
+            <FoldersSection
+              onCreateFolder={handleCreateFolder}
+            >
+              {foldersLoading ? (
+                <div className="px-3 py-4">
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-text-muted border-t-transparent" />
+                    <span className="text-xs text-text-muted">Loading...</span>
+                  </div>
                 </div>
-              </div>
-            ) : folders && folders.length > 0 ? (
-              folders.map((folder) => (
-                <FolderItem
-                  key={folder.folder_id}
-                  folder={folder}
-                  pageCount={pageCounts[folder.folder_id] || 0}
-                  isSelected={selectedFolderId === folder.folder_id}
-                  onSelect={() => setSelectedFolderId(folder.folder_id)}
-                  onRename={handleRenameFolder}
-                  onCreateDrawing={handleCreateDrawingInFolder}
-                  onDelete={handleDeleteFolder}
-                />
-              ))
-            ) : (
-              <EmptyPagesState />
-            )}
-          </FoldersSection>
-        ) : isOnIndividualPage && currentFolder ? (
+              ) : folders && folders.length > 0 ? (
+                folders.map((folder) => (
+                  <FolderItem
+                    key={folder.folder_id}
+                    folder={folder}
+                    pageCount={pageCounts[folder.folder_id] || 0}
+                    isSelected={selectedFolderId === folder.folder_id}
+                    onSelect={() => setSelectedFolderId(folder.folder_id)}
+                    onRename={handleRenameFolder}
+                    onCreateDrawing={handleCreateDrawingInFolder}
+                    onDelete={handleDeleteFolder}
+                  />
+                ))
+              ) : (
+                <div className="px-3 py-2 text-xs text-text-muted">No folders</div>
+              )}
+            </FoldersSection>
+          </>
+        ) : isOnIndividualPage ? (
           /* Folder Pages Section for Individual Page View - Show pages in current folder */
           <FolderPagesSection
             folderName={currentFolder?.name ?? "Unknown Folder"}

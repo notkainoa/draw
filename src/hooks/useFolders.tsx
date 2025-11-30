@@ -43,11 +43,13 @@ export function useFolderPages(folderId: string | null) {
   } = useQuery({
     queryKey: ["folderPages", user?.id, folderId],
     queryFn: async () => {
-      if (!user?.id || !folderId) return [];
+      if (!user?.id) return [];
+      // If folderId is null, we fetch root pages (folder_id IS NULL)
+      // getPagesByFolder handles null properly now
       const response = await getPagesByFolder(user.id, folderId);
       return response.data || [];
     },
-    enabled: !!user?.id && !!folderId,
+    enabled: !!user?.id,
   });
 
   return {
