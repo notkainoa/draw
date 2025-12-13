@@ -47,6 +47,7 @@ export function useNetworkStatus(): NetworkStatus {
         if (response.ok && !isOnline) {
           handleOnline();
         }
+        // Intentionally ignoring error details since any fetch failure indicates offline status
       } catch {
         if (isOnline) {
           handleOffline();
