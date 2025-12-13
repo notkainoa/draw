@@ -202,8 +202,8 @@ export async function renameFolder(folder_id: string, newName: string): Promise<
 }
 
 export async function deleteFolder(folder_id: string): Promise<DBResponse> {
-  // First, get the user_id from the folder
-  const { data: folderData, error: folderError } = await supabase
+  // Verify the folder exists by attempting to fetch it
+  const { error: folderError } = await supabase
     .from(FOLDERS_DB_NAME)
     .select("user_id")
     .eq("folder_id", folder_id)
