@@ -17,7 +17,6 @@ export class SyncService {
 
   async syncPendingChanges(): Promise<void> {
     if (this.isCurrentlySyncing) {
-      console.log('Sync already in progress, skipping...');
       return;
     }
 
@@ -25,15 +24,12 @@ export class SyncService {
     const pendingChanges = store.pendingChanges;
 
     if (pendingChanges.length === 0) {
-      console.log('No pending changes to sync');
       return;
     }
 
     this.isCurrentlySyncing = true;
     store.setSyncing(true);
     store.setLastSyncAttempt(new Date().toISOString());
-
-    console.log(`Starting sync of ${pendingChanges.length} pending changes...`);
 
     let successCount = 0;
     let failureCount = 0;
@@ -48,14 +44,12 @@ export class SyncService {
         await this.syncSingleChange(change);
         store.removePendingChange(change.id);
         successCount++;
-        console.log(`Successfully synced change: ${change.type}`, change);
       } catch (error) {
         console.error(`Failed to sync change: ${change.type}`, change, error);
         failureCount++;
         
         // For critical errors, we might want to remove the change to prevent infinite retries
         if (error instanceof Error && error.message.includes('not found')) {
-          console.log('Removing invalid change due to not found error');
           store.removePendingChange(change.id);
         }
       }
@@ -72,8 +66,6 @@ export class SyncService {
     } else if (failureCount > 0) {
       toast.error(`Failed to sync ${failureCount} changes`);
     }
-
-    console.log(`Sync completed: ${successCount} successful, ${failureCount} failed`);
   }
 
   private async syncSingleChange(change: PendingChange): Promise<void> {
@@ -91,7 +83,7 @@ export class SyncService {
         await this.syncFolderCreate(change as PendingFolderCreate);
         break;
       default:
-        console.warn('Unknown change type:', (change as any).type);
+        console.error('Unknown change type:', (change as { type: string }).type);
     }
   }
 
@@ -134,10 +126,6 @@ export class SyncService {
     if (response.error) {
       throw new Error(`Failed to sync page creation: ${response.error.message}`);
     }
-    
-    // The new page will have a different ID from Supabase
-    // We should update our local references if needed
-    console.log('Page created successfully:', response.data);
   }
 
   private async syncFolderCreate(change: PendingFolderCreate): Promise<void> {
@@ -157,8 +145,6 @@ export class SyncService {
         newFolder.created_at
       );
     }
-    
-    console.log('Folder created successfully:', response.data);
   }
 }
 

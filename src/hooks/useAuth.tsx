@@ -53,8 +53,6 @@ export function useAuth() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("Auth state changed:", event, session?.user?.email);
-        
         setAuthState({
           user: session?.user ?? null,
           session: session,
@@ -71,10 +69,8 @@ export function useAuth() {
             toast.info("Signed out successfully");
             break;
           case 'TOKEN_REFRESHED':
-            console.log("Token refreshed");
             break;
           case 'USER_UPDATED':
-            console.log("User updated");
             break;
         }
       }

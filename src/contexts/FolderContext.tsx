@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useFolders } from "@/hooks/useFolders";
-import { createDefaultFolder } from "@/db/draw";
+import { migrateDefaultFolderToRoot, type Folder } from "@/db/draw";
 import { useAuth } from "@/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface FolderContextType {
   selectedFolderId: string | null;
   setSelectedFolderId: (id: string | null) => void;
-  folders: any[] | undefined;
+  folders: Folder[] | undefined;
   isLoading: boolean;
 }
 
@@ -19,33 +19,27 @@ export function FolderProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Ensure user has a default folder
+  // Migrate "My Drawings" to root
   useEffect(() => {
-    async function ensureDefaultFolder() {
-      if (user?.id && folders && folders.length === 0 && !isLoading) {
-        // User has no folders, create a default one
-        try {
-          await createDefaultFolder(user.id);
-          // Invalidate folders query to refetch
-          queryClient.invalidateQueries({ queryKey: ["folders"] });
-        } catch (error) {
-          console.error("Failed to create default folder:", error);
-          // Optionally, import and use a toast notification here if needed
+    async function handleMigration() {
+      if (user?.id && folders && !isLoading) {
+        const defaultFolder = folders.find(f => f.name === "My Drawings");
+        if (defaultFolder) {
+          try {
+            await migrateDefaultFolderToRoot(user.id);
+            // Invalidate queries to refresh UI
+            queryClient.invalidateQueries({ queryKey: ["folders"] });
+            queryClient.invalidateQueries({ queryKey: ["folderPages"] });
+            queryClient.invalidateQueries({ queryKey: ["pages"] });
+          } catch (error) {
+            console.error("Failed to migrate default folder:", error);
+          }
         }
       }
     }
 
-    ensureDefaultFolder();
+    handleMigration();
   }, [user?.id, folders, isLoading, queryClient]);
-
-  // Set default selected folder when folders load
-  useEffect(() => {
-    if (folders && folders.length > 0 && !selectedFolderId) {
-      // Prefer "My Drawings" folder if it exists, otherwise use the first folder
-      const defaultFolder = folders.find(f => f.name === "My Drawings") || folders[0];
-      setSelectedFolderId(defaultFolder.folder_id);
-    }
-  }, [folders, selectedFolderId]);
 
   return (
     <FolderContext.Provider
