@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Command } from "cmdk";
 import { useNavigate } from "@tanstack/react-router";
 import { usePages } from "@/hooks/usePages";
@@ -27,7 +27,7 @@ interface SearchResult {
   title: string;
   subtitle: string;
   icon: React.ReactNode;
-  data?: any;
+  data?: { folder_id?: string; page_id?: string };
   action?: () => void;
 }
 
@@ -76,7 +76,7 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
   };
 
   // Action handlers
-  const handleCreateNewPage = async () => {
+  const handleCreateNewPage = useCallback(async () => {
     try {
       if (!user?.id) {
         toast.error("Please sign in to create a page");
@@ -107,9 +107,9 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
       console.error("Error creating page:", error);
       toast.error("Failed to create page");
     }
-  };
+  }, [user?.id, selectedFolderId, folders, onOpenChange, queryClient, navigate]);
 
-  const handleCreateNewFolder = async () => {
+  const handleCreateNewFolder = useCallback(async () => {
     try {
       if (!user?.id) {
         toast.error("Please sign in to create a folder");
@@ -131,12 +131,12 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
       console.error("Error creating folder:", error);
       toast.error("Failed to create folder");
     }
-  };
+  }, [user?.id, folders?.length, onOpenChange, queryClient]);
 
-  const handleOpenProfile = () => {
+  const handleOpenProfile = useCallback(() => {
     onOpenChange(false);
     openProfile();
-  };
+  }, [onOpenChange, openProfile]);
 
   // Enhanced search results with better filtering and sorting
   const searchResults = useMemo(() => {
@@ -241,14 +241,14 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
 
       return a.title.localeCompare(b.title);
     });
-  }, [search, folders, pages]);
+  }, [search, folders, pages, handleCreateNewPage, handleCreateNewFolder, handleOpenProfile]);
 
   const handleResultSelect = (result: SearchResult) => {
     if (result.type === 'action' && result.action) {
       result.action();
-    } else if (result.type === 'folder') {
+    } else if (result.type === 'folder' && result.data?.folder_id) {
       handleFolderSelect(result.data.folder_id);
-    } else if (result.type === 'drawing') {
+    } else if (result.type === 'drawing' && result.data?.page_id) {
       handlePageSelect(result.data.page_id);
     }
   };

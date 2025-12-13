@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useFolders } from "@/hooks/useFolders";
-import { migrateDefaultFolderToRoot } from "@/db/draw";
+import { migrateDefaultFolderToRoot, type Folder } from "@/db/draw";
 import { useAuth } from "@/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface FolderContextType {
   selectedFolderId: string | null;
   setSelectedFolderId: (id: string | null) => void;
-  folders: any[] | undefined;
+  folders: Folder[] | undefined;
   isLoading: boolean;
 }
 

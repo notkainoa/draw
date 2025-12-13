@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getPages } from "../db/draw";
 import { getLocalUser } from "../db/auth";
 import { toast } from "sonner";
+import { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 
 export interface PageData {
   page_id: string;
@@ -9,7 +10,7 @@ export interface PageData {
   updated_at: string;
   user_id: string;
   is_deleted: boolean;
-  page_elements?: any;
+  page_elements?: NonDeletedExcalidrawElement[];
   folder_id?: string;
 }
 

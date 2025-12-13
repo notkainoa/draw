@@ -3,6 +3,7 @@ import { getFolders, getPagesByFolder, Folder, getPages } from "@/db/draw";
 import { useAuth } from "./useAuth";
 import { useEffect } from "react";
 import { supabase } from "@/db/supabase";
+import { PageData } from "./usePages";
 
 export function useFolders() {
   const { user } = useAuth();
@@ -77,7 +78,7 @@ export function useFolderPageCounts() {
 
       // Count pages per folder
       const counts: Record<string, number> = {};
-      pages.forEach((page: any) => {
+      pages.forEach((page: PageData) => {
         if (page.folder_id) {
           counts[page.folder_id] = (counts[page.folder_id] || 0) + 1;
         }
