@@ -42,6 +42,17 @@ For example, to limit users to 10 drawings:
 
 If this environment variable is not set, users can create unlimited drawings (default behavior).
 
+#### Unlimited Users Bypass List
+
+You can also specify a list of user emails that bypass the drawing limit by setting the `VITE_UNLIMITED_USERS` environment variable. This is useful for administrators or premium users who should have unlimited access.
+
+For example:
+- In Vercel: Add `VITE_UNLIMITED_USERS` with value `admin@example.com,manager@example.com,premium@example.com`
+- In `.env` file: Add `VITE_UNLIMITED_USERS=admin@example.com,manager@example.com`
+
+Users in this list can create unlimited drawings even when `VITE_MAX_DRAWINGS_PER_USER` is set. The comparison is case-insensitive and supports multiple emails separated by commas.
+
+
 If you want to deploy using Docker, you can use the provided docker-compose file, using the instruction in the [Docker](https://github.com/kainoanewton/draw/blob/main/docs/docker.md) section.
 
 If you'd like to build the app yourself, run:

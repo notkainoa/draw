@@ -51,27 +51,41 @@ export async function createNewPage(
     if (maxDrawings) {
       const limit = parseInt(maxDrawings, 10);
       if (!isNaN(limit) && limit > 0) {
-        // Count existing non-deleted drawings for this user
-        const { count, error: countError } = await supabase
-          .from(DB_NAME)
-          .select('*', { count: 'exact', head: true })
-          .eq("user_id", profile.user?.id)
-          .eq("is_deleted", false);
+        // Check if user is in the unlimited users list (bypass list)
+        const unlimitedUsersEnv = import.meta.env.VITE_UNLIMITED_USERS;
+        const userEmail = profile.user?.email;
+        let isUnlimitedUser = false;
 
-        if (countError) {
-          return { data: null, error: countError };
+        if (unlimitedUsersEnv && userEmail) {
+          // Split by comma and trim whitespace from each email
+          const unlimitedUsers = unlimitedUsersEnv.split(',').map((email: string) => email.trim().toLowerCase());
+          isUnlimitedUser = unlimitedUsers.includes(userEmail.toLowerCase());
         }
 
-        if (count !== null && count >= limit) {
-          // Create a custom error to indicate limit reached
-          const limitError: PostgrestError = {
-            message: `You have reached the maximum limit of ${limit} drawing${limit === 1 ? '' : 's'}. Please delete some drawings to create new ones.`,
-            details: '',
-            hint: '',
-            code: 'DrawingLimitReached',
-            name: 'PostgrestError',
-          };
-          return { data: null, error: limitError };
+        // Only enforce limit if user is not in the unlimited users list
+        if (!isUnlimitedUser) {
+          // Count existing non-deleted drawings for this user
+          const { count, error: countError } = await supabase
+            .from(DB_NAME)
+            .select('*', { count: 'exact', head: true })
+            .eq("user_id", profile.user?.id)
+            .eq("is_deleted", false);
+
+          if (countError) {
+            return { data: null, error: countError };
+          }
+
+          if (count !== null && count >= limit) {
+            // Create a custom error to indicate limit reached
+            const limitError: PostgrestError = {
+              message: `You have reached the maximum limit of ${limit} drawing${limit === 1 ? '' : 's'}. Please delete some drawings to create new ones.`,
+              details: '',
+              hint: '',
+              code: 'DrawingLimitReached',
+              name: 'PostgrestError',
+            };
+            return { data: null, error: limitError };
+          }
         }
       }
     }
