@@ -218,7 +218,7 @@ export default function Pages() {
   }
 
   async function handlePageCreate() {
-    // If root (null), createNewPage handles it as null
+    // If selectedFolderId is null, pass undefined to createNewPage which treats it as null
     const data = await createNewPage(undefined, selectedFolderId ?? undefined);
 
     if (data.data && data.data[0]?.page_id) {

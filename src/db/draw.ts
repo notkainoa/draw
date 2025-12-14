@@ -50,7 +50,7 @@ export async function createNewPage(
     const maxDrawings = import.meta.env.VITE_MAX_DRAWINGS_PER_USER;
     if (maxDrawings) {
       const limit = parseInt(maxDrawings, 10);
-      if (!isNaN(limit)) {
+      if (!isNaN(limit) && limit > 0) {
         // Count existing non-deleted drawings for this user
         const { count, error: countError } = await supabase
           .from(DB_NAME)
@@ -64,11 +64,13 @@ export async function createNewPage(
 
         if (count !== null && count >= limit) {
           // Create a custom error to indicate limit reached
-          const limitError = new AuthError(
-            `You have reached the maximum limit of ${limit} drawing${limit === 1 ? '' : 's'}. Please delete some drawings to create new ones.`,
-            403,
-            'DrawingLimitReached'
-          );
+          const limitError: PostgrestError = {
+            message: `You have reached the maximum limit of ${limit} drawing${limit === 1 ? '' : 's'}. Please delete some drawings to create new ones.`,
+            details: '',
+            hint: '',
+            code: 'DrawingLimitReached',
+            name: 'PostgrestError',
+          };
           return { data: null, error: limitError };
         }
       }
