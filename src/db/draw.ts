@@ -46,6 +46,34 @@ export async function createNewPage(
 ): Promise<DBResponse> {
   const { data: profile, error: profileError } = await supabase.auth.getUser();
   if (profile) {
+    // Check drawing limit if environment variable is set
+    const maxDrawings = import.meta.env.VITE_MAX_DRAWINGS_PER_USER;
+    if (maxDrawings) {
+      const limit = parseInt(maxDrawings, 10);
+      if (!isNaN(limit)) {
+        // Count existing non-deleted drawings for this user
+        const { count, error: countError } = await supabase
+          .from(DB_NAME)
+          .select('*', { count: 'exact', head: true })
+          .eq("user_id", profile.user?.id)
+          .eq("is_deleted", false);
+
+        if (countError) {
+          return { data: null, error: countError };
+        }
+
+        if (count !== null && count >= limit) {
+          // Create a custom error to indicate limit reached
+          const limitError = new AuthError(
+            `You have reached the maximum limit of ${limit} drawing${limit === 1 ? '' : 's'}. Please delete some drawings to create new ones.`,
+            403,
+            'DrawingLimitReached'
+          );
+          return { data: null, error: limitError };
+        }
+      }
+    }
+
     const { data, error } = await supabase
       .from(DB_NAME)
       .insert({

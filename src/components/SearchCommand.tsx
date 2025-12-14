@@ -91,7 +91,13 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
 
       const response = await createNewPage(undefined, targetFolderId);
       if (response.error) {
-        toast.error("Failed to create page");
+        if (response.error.code === 'DrawingLimitReached') {
+          toast.error("Drawing limit reached", {
+            description: response.error.message,
+          });
+        } else {
+          toast.error("Failed to create page");
+        }
         return;
       }
 

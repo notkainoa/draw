@@ -225,9 +225,15 @@ export default function Pages() {
       navigate({ to: "/page/$id", params: { id: data.data[0].page_id } });
     }
     if (data.error) {
-      toast("An error occurred", {
-        description: `Error: ${data.error.message}`,
-      });
+      if (data.error.code === 'DrawingLimitReached') {
+        toast.error("Drawing limit reached", {
+          description: data.error.message,
+        });
+      } else {
+        toast("An error occurred", {
+          description: `Error: ${data.error.message}`,
+        });
+      }
     }
   }
 

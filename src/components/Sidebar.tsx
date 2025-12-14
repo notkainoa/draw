@@ -492,9 +492,15 @@ export default function Sidebar({ className }: SidebarProps) {
       toast("Successfully created a new page!");
     }
     if (data.error) {
-      toast("An error occurred", {
-        description: `Error: ${data.error.message}`,
-      });
+      if (data.error.code === 'DrawingLimitReached') {
+        toast.error("Drawing limit reached", {
+          description: data.error.message,
+        });
+      } else {
+        toast("An error occurred", {
+          description: `Error: ${data.error.message}`,
+        });
+      }
     }
   }
 
@@ -523,9 +529,15 @@ export default function Sidebar({ className }: SidebarProps) {
       toast("Successfully created a new drawing!");
     }
     if (data.error) {
-      toast("An error occurred", {
-        description: `Error: ${data.error.message}`,
-      });
+      if (data.error.code === 'DrawingLimitReached') {
+        toast.error("Drawing limit reached", {
+          description: data.error.message,
+        });
+      } else {
+        toast("An error occurred", {
+          description: `Error: ${data.error.message}`,
+        });
+      }
     }
   }
 
