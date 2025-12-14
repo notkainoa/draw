@@ -11,6 +11,29 @@ export type DBResponse = {
 export const DB_NAME = "draw";
 export const FOLDERS_DB_NAME = "folders";
 
+// Cache parsed unlimited users list to avoid repeated parsing
+let cachedUnlimitedUsers: string[] = [];
+let cachedUnlimitedUsersEnv: string | undefined = undefined;
+
+function getUnlimitedUsers(): string[] {
+  const unlimitedUsersEnv = import.meta.env.VITE_UNLIMITED_USERS;
+  
+  // Return cached list if environment variable hasn't changed
+  if (unlimitedUsersEnv === cachedUnlimitedUsersEnv) {
+    return cachedUnlimitedUsers;
+  }
+  
+  // Parse and cache the list
+  cachedUnlimitedUsersEnv = unlimitedUsersEnv;
+  if (unlimitedUsersEnv) {
+    cachedUnlimitedUsers = unlimitedUsersEnv.split(',').map((email: string) => email.trim().toLowerCase());
+  } else {
+    cachedUnlimitedUsers = [];
+  }
+  
+  return cachedUnlimitedUsers;
+}
+
 export type Folder = {
   folder_id: string;
   name: string;
@@ -52,13 +75,11 @@ export async function createNewPage(
       const limit = parseInt(maxDrawings, 10);
       if (!isNaN(limit) && limit > 0) {
         // Check if user is in the unlimited users list (bypass list)
-        const unlimitedUsersEnv = import.meta.env.VITE_UNLIMITED_USERS;
         const userEmail = profile.user?.email;
         let isUnlimitedUser = false;
 
-        if (unlimitedUsersEnv && userEmail) {
-          // Split by comma and trim whitespace from each email
-          const unlimitedUsers = unlimitedUsersEnv.split(',').map((email: string) => email.trim().toLowerCase());
+        if (userEmail) {
+          const unlimitedUsers = getUnlimitedUsers();
           isUnlimitedUser = unlimitedUsers.includes(userEmail.toLowerCase());
         }
 
@@ -67,7 +88,7 @@ export async function createNewPage(
           // Count existing non-deleted drawings for this user
           const { count, error: countError } = await supabase
             .from(DB_NAME)
-            .select('*', { count: 'exact', head: true })
+            .select('page_id', { count: 'exact', head: true })
             .eq("user_id", profile.user?.id)
             .eq("is_deleted", false);
 
