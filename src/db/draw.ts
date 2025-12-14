@@ -65,7 +65,7 @@ export async function getDrawData(id: string): Promise<DBResponse> {
 
 export async function createNewPage(
   elements?: readonly NonDeletedExcalidrawElement[],
-  folder_id?: string | null,
+  folder_id?: string,
 ): Promise<DBResponse> {
   const { data: profile, error: profileError } = await supabase.auth.getUser();
   if (profile) {
@@ -111,12 +111,27 @@ export async function createNewPage(
       }
     }
 
+    let finalFolderId = folder_id;
+
+    // If no folder_id provided, get or create default folder
+    if (!finalFolderId) {
+      const defaultFolderResponse = await getDefaultFolder(profile.user!.id);
+      if (defaultFolderResponse.data && defaultFolderResponse.data.length > 0) {
+        finalFolderId = defaultFolderResponse.data[0].folder_id;
+      } else {
+        const newFolderResponse = await createDefaultFolder(profile.user!.id);
+        if (newFolderResponse.data && newFolderResponse.data.length > 0) {
+          finalFolderId = newFolderResponse.data[0].folder_id;
+        }
+      }
+    }
+
     const { data, error } = await supabase
       .from(DB_NAME)
       .insert({
         user_id: profile.user?.id,
         page_elements: { elements },
-        folder_id: folder_id ?? null,
+        folder_id: finalFolderId,
         name: "Untitled"
       })
       .select();
@@ -182,48 +197,16 @@ export async function createFolder(name: string): Promise<DBResponse> {
   return { data: null, error: profileError };
 }
 
-export async function getPagesByFolder(user_id: string, folder_id: string | null): Promise<DBResponse> {
-  let query = supabase
+export async function getPagesByFolder(user_id: string, folder_id: string): Promise<DBResponse> {
+  const { data, error } = await supabase
     .from(DB_NAME)
     .select()
     .order("updated_at", { ascending: false })
     .eq("user_id", user_id)
+    .eq("folder_id", folder_id)
     .eq("is_deleted", false);
 
-  if (folder_id) {
-    query = query.eq("folder_id", folder_id);
-  } else {
-    query = query.is("folder_id", null);
-  }
-
-  const { data, error } = await query;
   return { data, error };
-}
-
-export async function migrateDefaultFolderToRoot(user_id: string): Promise<void> {
-  // Find "My Drawings" folder
-  const { data: folders } = await supabase
-    .from(FOLDERS_DB_NAME)
-    .select("folder_id")
-    .eq("user_id", user_id)
-    .eq("name", "My Drawings")
-    .limit(1);
-
-  if (folders && folders.length > 0) {
-    const folderId = folders[0].folder_id;
-
-    // Move all pages from this folder to root (null)
-    await supabase
-      .from(DB_NAME)
-      .update({ folder_id: null })
-      .eq("folder_id", folderId);
-
-    // Delete the folder
-    await supabase
-      .from(FOLDERS_DB_NAME)
-      .delete()
-      .eq("folder_id", folderId);
-  }
 }
 
 export async function getDefaultFolder(user_id: string): Promise<DBResponse> {
@@ -267,8 +250,8 @@ export async function renameFolder(folder_id: string, newName: string): Promise<
 }
 
 export async function deleteFolder(folder_id: string): Promise<DBResponse> {
-  // Verify the folder exists by attempting to fetch it
-  const { error: folderError } = await supabase
+  // First, get the user_id from the folder to find their default folder
+  const { data: folderData, error: folderError } = await supabase
     .from(FOLDERS_DB_NAME)
     .select("user_id")
     .eq("folder_id", folder_id)
@@ -278,11 +261,27 @@ export async function deleteFolder(folder_id: string): Promise<DBResponse> {
     return { data: null, error: folderError };
   }
 
-  // Move all pages from the folder being deleted to the root workspace (null)
-  await supabase
-    .from(DB_NAME)
-    .update({ folder_id: null })
-    .eq("folder_id", folder_id);
+  // Get or create default folder for the user
+  const defaultFolderResponse = await getDefaultFolder(folderData.user_id);
+  let defaultFolderId = null;
+
+  if (defaultFolderResponse.data && defaultFolderResponse.data.length > 0) {
+    defaultFolderId = defaultFolderResponse.data[0].folder_id;
+  } else {
+    // Create default folder if it doesn't exist
+    const createDefaultResponse = await createDefaultFolder(folderData.user_id);
+    if (createDefaultResponse.data && createDefaultResponse.data.length > 0) {
+      defaultFolderId = createDefaultResponse.data[0].folder_id;
+    }
+  }
+
+  if (defaultFolderId) {
+    // Move all pages from the folder being deleted to the default folder
+    await supabase
+      .from(DB_NAME)
+      .update({ folder_id: defaultFolderId })
+      .eq("folder_id", folder_id);
+  }
 
   // Now delete the folder
   const { data, error } = await supabase

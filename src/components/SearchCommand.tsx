@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Command } from "cmdk";
 import { useNavigate } from "@tanstack/react-router";
 import { usePages } from "@/hooks/usePages";
@@ -27,7 +27,7 @@ interface SearchResult {
   title: string;
   subtitle: string;
   icon: React.ReactNode;
-  data?: { folder_id?: string; page_id?: string };
+  data?: any;
   action?: () => void;
 }
 
@@ -76,7 +76,7 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
   };
 
   // Action handlers
-  const handleCreateNewPage = useCallback(async () => {
+  const handleCreateNewPage = async () => {
     try {
       if (!user?.id) {
         toast.error("Please sign in to create a page");
@@ -113,9 +113,9 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
       console.error("Error creating page:", error);
       toast.error("Failed to create page");
     }
-  }, [user?.id, selectedFolderId, folders, onOpenChange, queryClient, navigate]);
+  };
 
-  const handleCreateNewFolder = useCallback(async () => {
+  const handleCreateNewFolder = async () => {
     try {
       if (!user?.id) {
         toast.error("Please sign in to create a folder");
@@ -137,12 +137,12 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
       console.error("Error creating folder:", error);
       toast.error("Failed to create folder");
     }
-  }, [user?.id, folders?.length, onOpenChange, queryClient]);
+  };
 
-  const handleOpenProfile = useCallback(() => {
+  const handleOpenProfile = () => {
     onOpenChange(false);
     openProfile();
-  }, [onOpenChange, openProfile]);
+  };
 
   // Enhanced search results with better filtering and sorting
   const searchResults = useMemo(() => {
@@ -247,14 +247,14 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
 
       return a.title.localeCompare(b.title);
     });
-  }, [search, folders, pages, handleCreateNewPage, handleCreateNewFolder, handleOpenProfile]);
+  }, [search, folders, pages]);
 
   const handleResultSelect = (result: SearchResult) => {
     if (result.type === 'action' && result.action) {
       result.action();
-    } else if (result.type === 'folder' && result.data?.folder_id) {
+    } else if (result.type === 'folder') {
       handleFolderSelect(result.data.folder_id);
-    } else if (result.type === 'drawing' && result.data?.page_id) {
+    } else if (result.type === 'drawing') {
       handlePageSelect(result.data.page_id);
     }
   };
@@ -271,17 +271,17 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <Command
-          className="rounded-modal border border-border-subtle bg-background-card overflow-hidden"
-          style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)' }}
+          className="rounded-modal border-2 border-border-subtle bg-background-card overflow-hidden font-virgil"
+          style={{ boxShadow: '4px 4px 0px rgba(0, 0, 0, 0.2)' }}
           shouldFilter={false}
         >
-          <div className="flex items-center border-b border-border-subtle px-4 py-3">
+          <div className="flex items-center border-b-2 border-border-subtle px-4 py-3">
             <Search className="mr-3 h-5 w-5 shrink-0 text-text-muted" />
             <Command.Input
               value={search}
               onValueChange={setSearch}
               placeholder="Search folders and drawings..."
-              className="flex h-8 w-full bg-transparent text-base outline-none placeholder:text-text-muted disabled:cursor-not-allowed disabled:opacity-50 text-text-primary"
+              className="flex h-8 w-full bg-transparent text-base outline-none placeholder:text-text-muted disabled:cursor-not-allowed disabled:opacity-50 text-text-primary font-virgil"
               autoFocus
             />
             {search && (
@@ -310,13 +310,13 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
                     value={result.id}
                     onSelect={() => handleResultSelect(result)}
                     className={cn(
-                      "relative flex cursor-pointer select-none items-center rounded-md px-3 py-3 text-sm outline-none transition-all duration-150",
-                      "hover:bg-background-hover",
-                      "data-[selected]:bg-background-hover",
+                      "relative flex cursor-pointer select-none items-center rounded-md px-3 py-3 text-sm outline-none transition-all duration-150 border-2 border-transparent",
+                      "hover:bg-background-hover hover:border-text-muted",
+                      "data-[selected]:bg-background-hover data-[selected]:border-text-muted",
                       index > 0 && "mt-1"
                     )}
                   >
-                    <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-md bg-background-main">
+                    <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-md bg-background-main border-2 border-border-subtle">
                       {result.icon}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -329,10 +329,10 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
                       </div>
                     </div>
                     <div className={cn(
-                      "ml-2 text-xs px-2 py-1 rounded capitalize",
+                      "ml-2 text-xs px-2 py-1 rounded capitalize border-2",
                       result.type === 'action'
-                        ? "bg-accent-blue/10 text-accent-blue border border-accent-blue/20"
-                        : "bg-background-main text-text-muted"
+                        ? "bg-accent-blue/10 text-accent-blue border-accent-blue/20"
+                        : "bg-background-main text-text-muted border-border-subtle"
                     )}>
                       {result.type === 'drawing' ? 'drawing' : result.type}
                     </div>

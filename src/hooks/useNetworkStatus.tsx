@@ -13,6 +13,7 @@ export function useNetworkStatus(): NetworkStatus {
 
   useEffect(() => {
     const handleOnline = () => {
+      console.log('Network: Back online');
       setIsOnline(true);
       
       if (wasOffline) {
@@ -26,6 +27,7 @@ export function useNetworkStatus(): NetworkStatus {
     };
 
     const handleOffline = () => {
+      console.log('Network: Gone offline');
       setIsOnline(false);
       setWasOffline(true);
       setJustCameOnline(false);
@@ -47,8 +49,7 @@ export function useNetworkStatus(): NetworkStatus {
         if (response.ok && !isOnline) {
           handleOnline();
         }
-        // Intentionally ignoring error details since any fetch failure indicates offline status
-      } catch {
+      } catch (error) {
         if (isOnline) {
           handleOffline();
         }

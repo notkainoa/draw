@@ -3,7 +3,6 @@ import { getFolders, getPagesByFolder, Folder, getPages } from "@/db/draw";
 import { useAuth } from "./useAuth";
 import { useEffect } from "react";
 import { supabase } from "@/db/supabase";
-import { PageData } from "./usePages";
 
 export function useFolders() {
   const { user } = useAuth();
@@ -44,13 +43,11 @@ export function useFolderPages(folderId: string | null) {
   } = useQuery({
     queryKey: ["folderPages", user?.id, folderId],
     queryFn: async () => {
-      if (!user?.id) return [];
-      // If folderId is null, we fetch root pages (folder_id IS NULL)
-      // getPagesByFolder handles null properly now
+      if (!user?.id || !folderId) return [];
       const response = await getPagesByFolder(user.id, folderId);
       return response.data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!folderId,
   });
 
   return {
@@ -78,7 +75,7 @@ export function useFolderPageCounts() {
 
       // Count pages per folder
       const counts: Record<string, number> = {};
-      pages.forEach((page: PageData) => {
+      pages.forEach((page: any) => {
         if (page.folder_id) {
           counts[page.folder_id] = (counts[page.folder_id] || 0) + 1;
         }

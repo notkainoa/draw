@@ -197,7 +197,7 @@ const renderIcon = (iconValue: string | undefined) => {
 export default function Pages() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { selectedFolderId, setSelectedFolderId, folders, isLoading: foldersLoading } = useFolderContext();
+  const { selectedFolderId, folders, isLoading: foldersLoading } = useFolderContext();
   const { pages, isLoading: pagesLoading } = useFolderPages(selectedFolderId);
 
   const [isEditingName, setIsEditingName] = useState(false);
@@ -205,7 +205,6 @@ export default function Pages() {
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
   const selectedFolder = folders?.find(f => f.folder_id === selectedFolderId);
-  const isRoot = selectedFolderId === null;
 
   if (foldersLoading) return <Loader />;
 
@@ -213,13 +212,10 @@ export default function Pages() {
     navigate({ to: "/page/$id", params: { id: id } });
   }
 
-  function goToFolder(id: string) {
-    setSelectedFolderId(id);
-  }
-
   async function handlePageCreate() {
-    // If selectedFolderId is null, pass undefined to createNewPage which treats it as null
-    const data = await createNewPage(undefined, selectedFolderId ?? undefined);
+    if (!selectedFolderId) return;
+
+    const data = await createNewPage(undefined, selectedFolderId);
 
     if (data.data && data.data[0]?.page_id) {
       navigate({ to: "/page/$id", params: { id: data.data[0].page_id } });
@@ -306,47 +302,36 @@ export default function Pages() {
       {/* Enhanced Folder Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {isRoot ? (
-            // Root View Header
-            <div className="flex items-center gap-3 px-3 h-12">
-              <Home className="h-8 w-8 text-text-primary" />
-              <h1 className="text-2xl font-bold text-text-primary">Home</h1>
+          {/* Folder Icon - Same height as name */}
+          <button
+            onClick={() => setIsEmojiPickerOpen(true)}
+            className="flex items-center justify-center h-12 px-3 text-3xl transition-all duration-200 cursor-pointer rounded-lg hover:bg-background-hover"
+            title="Click to change folder icon"
+          >
+            {renderIcon(selectedFolder?.icon)}
+          </button>
+
+          {/* Folder Name - Same height as icon */}
+          {isEditingName ? (
+            <div className="relative">
+              <input
+                type="text"
+                value={editingName}
+                onChange={(e) => setEditingName(e.target.value)}
+                onBlur={() => handleFolderNameUpdate(editingName)}
+                onKeyDown={handleNameKeyPress}
+                className="h-12 px-3 text-2xl font-bold bg-background-input border-2 border-border rounded-lg text-text-primary focus:outline-none focus:border-accent-blue font-virgil shadow-sm"
+                autoFocus
+              />
             </div>
           ) : (
-            // Folder View Header
-            <>
-              {/* Folder Icon - Same height as name */}
-              <button
-                onClick={() => setIsEmojiPickerOpen(true)}
-                className="flex items-center justify-center h-12 px-3 text-3xl transition-all duration-200 cursor-pointer rounded-lg hover:bg-background-hover"
-                title="Click to change folder icon"
-              >
-                {renderIcon(selectedFolder?.icon)}
-              </button>
-
-              {/* Folder Name - Same height as icon */}
-              {isEditingName ? (
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={editingName}
-                    onChange={(e) => setEditingName(e.target.value)}
-                    onBlur={() => handleFolderNameUpdate(editingName)}
-                    onKeyDown={handleNameKeyPress}
-                    className="h-12 px-3 text-2xl font-bold bg-background-input border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-blue/50 focus:border-accent-blue"
-                    autoFocus
-                  />
-                </div>
-              ) : (
-                <button
-                  onClick={startEditingName}
-                  className="h-12 px-3 text-2xl font-bold text-text-primary hover:bg-background-hover rounded-lg transition-all duration-200 text-left"
-                  title="Click to edit folder name"
-                >
-                  {selectedFolder?.name || "Untitled Folder"}
-                </button>
-              )}
-            </>
+            <button
+              onClick={startEditingName}
+              className="h-12 px-3 text-2xl font-bold text-text-primary hover:bg-background-hover rounded-lg transition-all duration-200 text-left font-virgil"
+              title="Click to edit folder name"
+            >
+              {selectedFolder?.name || "Untitled Folder"}
+            </button>
           )}
         </div>
 
@@ -357,25 +342,6 @@ export default function Pages() {
 
       {/* Pages Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {/* Display Folders if at Root */}
-        {isRoot && folders && folders.length > 0 && (
-          folders.map((folder) => (
-            <Card
-              key={folder.folder_id}
-              className="group relative cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] bg-background-secondary border-border"
-              onClick={() => goToFolder(folder.folder_id)}
-            >
-              <CardContent className="p-4 flex flex-col items-center justify-center h-full min-h-[120px]">
-                <div className="text-4xl mb-2">{renderIcon(folder.icon)}</div>
-                <CardTitle className="text-lg font-semibold text-text-primary truncate w-full text-center">
-                  {folder.name}
-                </CardTitle>
-                <p className="text-xs text-text-muted mt-1">Folder</p>
-              </CardContent>
-            </Card>
-          ))
-        )}
-
         {pagesLoading ? (
           <Loader />
         ) : pages && pages.length > 0 ? (
@@ -406,7 +372,7 @@ export default function Pages() {
             </Card>
           ))
         ) : (
-          (!isRoot || (isRoot && (!folders || folders.length === 0))) && <NoData name="Pages" />
+          <NoData name="Pages" />
         )}
       </div>
 
