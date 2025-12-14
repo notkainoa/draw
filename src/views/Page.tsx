@@ -69,6 +69,7 @@ export default function Page({ id }: PageProps) {
       // Check if local data is newer than database data to prevent overwriting user changes
       const localData = drawDataStore.getState().getPageData(id);
       if (localData && new Date(localData.updatedAt) > new Date(dbUpdatedAt)) {
+        console.log("Local data is newer than database, skipping update to preserve user changes");
         return;
       }
 
@@ -133,7 +134,7 @@ export default function Page({ id }: PageProps) {
         }
       }
     }
-  }, [excalidrawAPI, id, name, mutate, isSaving, isOnline]);
+  }, [excalidrawAPI, id, name, mutate, isSaving]);
 
   useEffect(() => {
     // Only update scene if:

@@ -16,6 +16,7 @@ export function useOfflineSync() {
   // Sync when coming back online
   useEffect(() => {
     if (justCameOnline && isAuthenticated && hasPendingChanges()) {
+      console.log('Device came back online, starting sync...');
       syncService.syncPendingChanges();
     }
   }, [justCameOnline, isAuthenticated, hasPendingChanges]);
@@ -26,6 +27,7 @@ export function useOfflineSync() {
 
     const syncInterval = setInterval(() => {
       if (hasPendingChanges() && !isSyncing) {
+        console.log('Periodic sync check - syncing pending changes...');
         syncService.syncPendingChanges();
       }
     }, 5 * 60 * 1000); // 5 minutes

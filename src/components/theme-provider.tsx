@@ -34,7 +34,7 @@ export function ThemeProvider({
         return stored;
       }
     } catch (e) {
-      console.error("Failed to access localStorage for theme:", e);
+      console.warn("Failed to access localStorage for theme:", e);
     }
     return defaultTheme;
   });
@@ -53,7 +53,7 @@ export function ThemeProvider({
       try {
         localStorage.setItem(storageKey, theme);
       } catch (e) {
-        console.error("Failed to set theme in localStorage:", e);
+        console.warn("Failed to set theme in localStorage:", e);
       }
       setTheme(theme);
     },

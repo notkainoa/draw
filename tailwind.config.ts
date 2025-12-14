@@ -42,7 +42,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Inter", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"],
+        sans: ["Virgil", "Inter", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"],
         virgil: ["Virgil", "sans-serif"],
         quicksand: ["Quicksand", "sans-serif"],
       },
