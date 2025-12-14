@@ -86,20 +86,24 @@ export async function createNewPage(
         // Only enforce limit if user is not in the unlimited users list
         if (!isUnlimitedUser) {
           // Count existing non-deleted drawings for this user
+          // Using .not() to exclude only explicitly deleted drawings, including NULL as non-deleted
           const { count, error: countError } = await supabase
             .from(DB_NAME)
             .select('page_id', { count: 'exact', head: true })
             .eq("user_id", profile.user?.id)
-            .eq("is_deleted", false);
+            .not('is_deleted', 'eq', true);
 
           if (countError) {
             return { data: null, error: countError };
           }
 
+          // Log for debugging
+          console.log(`Drawing limit check: user has ${count} drawings, limit is ${limit}`);
+
           if (count !== null && count >= limit) {
             // Create a custom error to indicate limit reached
             const limitError: PostgrestError = {
-              message: `You have reached the maximum limit of ${limit} drawing${limit === 1 ? '' : 's'}. Please delete some drawings to create new ones.`,
+              message: `You have reached the maximum limit of ${limit} drawing${limit === 1 ? '' : 's'} (you currently have ${count}). Please delete some drawings to create new ones.`,
               details: '',
               hint: '',
               code: 'DrawingLimitReached',
