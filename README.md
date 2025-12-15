@@ -31,7 +31,7 @@ We have set up a one-click deploy to Vercel.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/KainoaNewton/draw)
 
-If you want to deploy using Docker, you can use the provided docker-compose file, using the instruction in the [Docker](https://github.com/kainoanewton/draw/blob/main/docs/docker.md) section.
+If you want to deploy using Docker, you can use the provided docker-compose file, using the instruction in the [Docker](https://github.com/KainoaNewton/draw/blob/main/docs/docker.md) section.
 
 If you'd like to build the app yourself, run:
 
@@ -80,7 +80,7 @@ This is a visual of the Database Schema on Supabase. Read [docs/supabase.md](htt
 
 Clone the repository:
 
-    git clone https://github.com/macintushar/draw.git
+    git clone https://github.com/KainoaNewton/draw.git
     cd draw
 
 Install dependencies:
