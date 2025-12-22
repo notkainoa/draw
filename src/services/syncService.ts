@@ -96,7 +96,7 @@ export class SyncService {
   }
 
   private async syncPageUpdate(change: PendingPageChange): Promise<void> {
-    const response = await setDrawData(change.page_id, change.elements, change.name);
+    const response = await setDrawData(change.page_id, change.elements, change.name, change.files);
     if (response.error) {
       throw new Error(`Failed to sync page update: ${response.error.message}`);
     }
@@ -106,7 +106,8 @@ export class SyncService {
       change.page_id, 
       change.elements, 
       new Date().toISOString(), 
-      change.name
+      change.name,
+      change.files
     );
   }
 
@@ -130,7 +131,7 @@ export class SyncService {
   }
 
   private async syncPageCreate(change: PendingPageCreate): Promise<void> {
-    const response = await createNewPage(change.elements, change.folder_id);
+    const response = await createNewPage(change.elements, change.folder_id, change.files);
     if (response.error) {
       throw new Error(`Failed to sync page creation: ${response.error.message}`);
     }

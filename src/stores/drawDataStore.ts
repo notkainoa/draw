@@ -1,4 +1,5 @@
 import { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/element/types";
+import { BinaryFiles } from "@excalidraw/excalidraw/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -7,6 +8,7 @@ export type DrawData = {
     elements: readonly NonDeletedExcalidrawElement[];
     updatedAt: string;
     name: string;
+    files?: BinaryFiles;
   };
 };
 
@@ -17,6 +19,7 @@ type DrawDataStore = {
     elements: readonly NonDeletedExcalidrawElement[],
     updatedAt: string,
     name: string,
+    files?: BinaryFiles,
   ) => void;
   getPageData: (page_id: string) => DrawData[string] | undefined;
 };
@@ -25,7 +28,7 @@ const drawDataStore = create<DrawDataStore>()(
   persist(
     (set, get) => ({
       data: {},
-      setPageData: (page_id, elements, updatedAt, name) =>
+      setPageData: (page_id, elements, updatedAt, name, files) =>
         set((state) => {
           const currentData = state.data[page_id];
           if (
@@ -35,7 +38,7 @@ const drawDataStore = create<DrawDataStore>()(
             return {
               data: {
                 ...state.data,
-                [page_id]: { elements, updatedAt, name },
+                [page_id]: { elements, updatedAt, name, files: files || {} },
               },
             };
           }
