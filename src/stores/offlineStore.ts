@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/element/types";
+import { BinaryFiles } from "@excalidraw/excalidraw/types";
 
 export type PendingPageChange = {
   id: string;
@@ -9,6 +10,7 @@ export type PendingPageChange = {
   name: string;
   timestamp: string;
   type: 'page_update';
+  files?: BinaryFiles;
 };
 
 export type PendingFolderChange = {
@@ -26,6 +28,7 @@ export type PendingPageCreate = {
   name: string;
   timestamp: string;
   type: 'page_create';
+  files?: BinaryFiles;
 };
 
 export type PendingFolderCreate = {
