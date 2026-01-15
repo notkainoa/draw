@@ -26,6 +26,8 @@ export default function HomePageStatic() {
     queryKey: ["profile"],
     queryFn: getLocalUser,
     enabled: data === true,
+    retry: 1,
+    retryDelay: 1000,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
   });
