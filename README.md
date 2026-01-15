@@ -12,6 +12,7 @@ Draw is a wrapper around Excalidraw, integrated with Supabase to save and sync y
 * Cloud Sync: Uses Supabase for authentication and storage, ensuring secure access and synchronization of your drawings.
 + Folders: Organize drawings into folders.
 + Sidebar: Navigate and manage folders and drawings from a sleek sidebar.
++ Drawing Limit: Optional environment variable to limit the number of drawings per user.
 - Clunky UI: Removed clunky, unnecessary ui components from the UI.
 ```
 
@@ -30,6 +31,27 @@ To deploy the app, you can use platforms like Vercel or Netlify.
 We have set up a one-click deploy to Vercel.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/KainoaNewton/draw)
+
+### Drawing Limit (Optional)
+
+You can optionally limit the number of drawings a user can create by setting the `VITE_MAX_DRAWINGS_PER_USER` environment variable in your Vercel deployment (or any other hosting platform). 
+
+For example, to limit users to 10 drawings:
+- In Vercel: Go to your project settings → Environment Variables → Add `VITE_MAX_DRAWINGS_PER_USER` with value `10`
+- In `.env` file: Add `VITE_MAX_DRAWINGS_PER_USER=10`
+
+If this environment variable is not set, users can create unlimited drawings (default behavior).
+
+#### Unlimited Users Bypass List
+
+You can also specify a list of user emails that bypass the drawing limit by setting the `VITE_UNLIMITED_USERS` environment variable. This is useful for administrators or premium users who should have unlimited access.
+
+For example:
+- In Vercel: Add `VITE_UNLIMITED_USERS` with value `admin@example.com,manager@example.com,premium@example.com`
+- In `.env` file: Add `VITE_UNLIMITED_USERS=admin@example.com,manager@example.com`
+
+Users in this list can create unlimited drawings even when `VITE_MAX_DRAWINGS_PER_USER` is set. The comparison is case-insensitive and supports multiple emails separated by commas.
+
 
 If you want to deploy using Docker, you can use the provided docker-compose file, using the instruction in the [Docker](https://github.com/kainoanewton/draw/blob/main/docs/docker.md) section.
 

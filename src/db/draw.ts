@@ -12,6 +12,29 @@ export type DBResponse = {
 export const DB_NAME = "draw";
 export const FOLDERS_DB_NAME = "folders";
 
+// Cache parsed unlimited users list to avoid repeated parsing
+let cachedUnlimitedUsers: string[] = [];
+let cachedUnlimitedUsersEnv: string | undefined = undefined;
+
+function getUnlimitedUsers(): string[] {
+  const unlimitedUsersEnv = import.meta.env.VITE_UNLIMITED_USERS;
+  
+  // Return cached list if environment variable hasn't changed
+  if (unlimitedUsersEnv === cachedUnlimitedUsersEnv) {
+    return cachedUnlimitedUsers;
+  }
+  
+  // Parse and cache the list
+  cachedUnlimitedUsersEnv = unlimitedUsersEnv;
+  if (unlimitedUsersEnv) {
+    cachedUnlimitedUsers = unlimitedUsersEnv.split(',').map((email: string) => email.trim().toLowerCase());
+  } else {
+    cachedUnlimitedUsers = [];
+  }
+  
+  return cachedUnlimitedUsers;
+}
+
 export type Folder = {
   folder_id: string;
   name: string;
@@ -48,6 +71,52 @@ export async function createNewPage(
 ): Promise<DBResponse> {
   const { data: profile, error: profileError } = await supabase.auth.getUser();
   if (profile) {
+    // Check drawing limit if environment variable is set
+    const maxDrawings = import.meta.env.VITE_MAX_DRAWINGS_PER_USER;
+    if (maxDrawings) {
+      const limit = parseInt(maxDrawings, 10);
+      if (!isNaN(limit) && limit > 0) {
+        // Check if user is in the unlimited users list (bypass list)
+        const userEmail = profile.user?.email;
+        let isUnlimitedUser = false;
+
+        if (userEmail) {
+          const unlimitedUsers = getUnlimitedUsers();
+          isUnlimitedUser = unlimitedUsers.includes(userEmail.toLowerCase());
+        }
+
+        // Only enforce limit if user is not in the unlimited users list
+        if (!isUnlimitedUser) {
+          // Count existing non-deleted drawings for this user
+          // Using .not() to exclude only explicitly deleted drawings, including NULL as non-deleted
+          const { count, error: countError } = await supabase
+            .from(DB_NAME)
+            .select('page_id', { count: 'exact', head: true })
+            .eq("user_id", profile.user?.id)
+            .not('is_deleted', 'eq', true);
+
+          if (countError) {
+            return { data: null, error: countError };
+          }
+
+          // Log for debugging
+          console.log(`Drawing limit check: user has ${count} drawings, limit is ${limit}`);
+
+          if (count !== null && count >= limit) {
+            // Create a custom error to indicate limit reached
+            const limitError: PostgrestError = {
+              message: `You have reached the maximum limit of ${limit} drawing${limit === 1 ? '' : 's'} (you currently have ${count}). Please delete some drawings to create new ones.`,
+              details: '',
+              hint: '',
+              code: 'DrawingLimitReached',
+              name: 'PostgrestError',
+            };
+            return { data: null, error: limitError };
+          }
+        }
+      }
+    }
+
     let finalFolderId = folder_id;
 
     // If no folder_id provided, get or create default folder
