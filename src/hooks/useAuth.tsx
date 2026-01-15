@@ -91,12 +91,13 @@ export function useAuth() {
 // Enhanced version of the original isAuthenticated function
 export async function isAuthenticated(): Promise<boolean> {
   try {
-    const { data, error } = await supabase.auth.getUser();
+    // Use getSession() instead of getUser() for faster local check
+    const { data, error } = await supabase.auth.getSession();
     if (error) {
       console.error("Error checking authentication:", error);
       return false;
     }
-    return !!data.user;
+    return !!data.session;
   } catch (error) {
     console.error("Error in isAuthenticated:", error);
     return false;

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 export default function HomePage() {
   const navigate = useNavigate();
   const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["user", "authenticated"],
@@ -38,13 +39,16 @@ export default function HomePage() {
 
   useEffect(() => {
     if (data === true) {
+      setIsRedirecting(true);
       navigate({ to: "/pages" });
     }
   }, [data, navigate]);
 
   function action(authenticated: boolean) {
     if (authenticated === true) {
-      navigate({ to: "/pages" });
+      // Navigation is already handled by useEffect when data === true
+      // to show "Redirecting..." state
+      return;
     } else {
       navigate({ to: "/login", replace: true });
     }
@@ -71,8 +75,8 @@ export default function HomePage() {
             your drawings across all your devices.
           </h2>
           <Button
-            isLoading={isLoading && !loadingTimeout}
-            loadingText=""
+            isLoading={isLoading || isRedirecting}
+            loadingText={isRedirecting ? "Redirecting..." : "Loading..."}
             className="px-8 text-sm font-medium"
             size="lg"
             onClick={() => action(data ? true : false)}
