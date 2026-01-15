@@ -51,7 +51,7 @@ export default function HomePageStatic() {
         <div className="flex h-12 w-full items-center justify-center">
           <div className="flex flex-row items-center justify-center align-middle">
             <h1 className="text-sm text-text-secondary">
-              ⭐ Star us on{" "}
+              ⭐ Star on{" "}
               <a href={GITHUB_REPO_URL} className="font-medium underline text-accent-blue hover:text-blue-400 transition-colors">
                 GitHub
               </a>
@@ -97,7 +97,7 @@ export default function HomePageStatic() {
               ,
             </p>
             <p className="text-sm text-text-secondary">
-              tweaked by{" "}
+              improved by{" "}
               <a
                 href="https://github.com/KainoaNewton"
                 className="font-medium text-accent-blue hover:text-blue-400 transition-colors underline"
