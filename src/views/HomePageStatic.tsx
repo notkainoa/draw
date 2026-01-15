@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-export default function HomePage() {
+export default function HomePageStatic() {
   const navigate = useNavigate();
   const [loadingTimeout, setLoadingTimeout] = useState(false);
 
@@ -36,11 +36,7 @@ export default function HomePage() {
     console.error("Authentication query error:", error);
   }
 
-  useEffect(() => {
-    if (data === true) {
-      navigate({ to: "/pages" });
-    }
-  }, [data, navigate]);
+  // NOTE: No auto-redirect for authenticated users on /home route
 
   function action(authenticated: boolean) {
     if (authenticated === true) {

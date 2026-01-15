@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 
 const SignupLazyRouteImport = createFileRoute('/signup')()
 const LoginLazyRouteImport = createFileRoute('/login')()
+const HomeLazyRouteImport = createFileRoute('/home')()
 const AuthenticatedPagesLazyRouteImport = createFileRoute(
   '/_authenticated/pages',
 )()
@@ -33,6 +34,11 @@ const LoginLazyRoute = LoginLazyRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route))
+const HomeLazyRoute = HomeLazyRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/home.lazy').then((d) => d.Route))
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -59,6 +65,7 @@ const AuthenticatedPageIdLazyRoute = AuthenticatedPageIdLazyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/home': typeof HomeLazyRoute
   '/login': typeof LoginLazyRoute
   '/signup': typeof SignupLazyRoute
   '/pages': typeof AuthenticatedPagesLazyRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/home': typeof HomeLazyRoute
   '/login': typeof LoginLazyRoute
   '/signup': typeof SignupLazyRoute
   '/pages': typeof AuthenticatedPagesLazyRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/home': typeof HomeLazyRoute
   '/login': typeof LoginLazyRoute
   '/signup': typeof SignupLazyRoute
   '/_authenticated/pages': typeof AuthenticatedPagesLazyRoute
@@ -82,13 +91,14 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/pages' | '/page/$id'
+  fullPaths: '/' | '/home' | '/login' | '/signup' | '/pages' | '/page/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/pages' | '/page/$id'
+  to: '/' | '/home' | '/login' | '/signup' | '/pages' | '/page/$id'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/home'
     | '/login'
     | '/signup'
     | '/_authenticated/pages'
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  HomeLazyRoute: typeof HomeLazyRoute
   LoginLazyRoute: typeof LoginLazyRoute
   SignupLazyRoute: typeof SignupLazyRoute
 }
@@ -116,6 +127,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -166,6 +184,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  HomeLazyRoute: HomeLazyRoute,
   LoginLazyRoute: LoginLazyRoute,
   SignupLazyRoute: SignupLazyRoute,
 }
