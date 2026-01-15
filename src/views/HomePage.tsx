@@ -22,7 +22,7 @@ export default function HomePage() {
     if (isLoading) {
       const timeout = setTimeout(() => {
         setLoadingTimeout(true);
-        console.warn("Authentication check timed out after 10 seconds");
+        console.error("Authentication check timed out after 10 seconds");
       }, 10000); // 10 second timeout
 
       return () => clearTimeout(timeout);
