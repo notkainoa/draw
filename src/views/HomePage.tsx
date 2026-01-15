@@ -76,7 +76,7 @@ export default function HomePage() {
           </h2>
           <Button
             isLoading={isLoading || isRedirecting}
-            loadingText={isRedirecting ? "Redirecting..." : ""}
+            loadingText={isRedirecting ? "Redirecting..." : "Loading..."}
             className="px-8 text-sm font-medium"
             size="lg"
             onClick={() => action(data ? true : false)}
