@@ -46,7 +46,9 @@ export default function HomePage() {
 
   function action(authenticated: boolean) {
     if (authenticated === true) {
-      navigate({ to: "/pages" });
+      // Navigation is already handled by useEffect when data === true
+      // to show "Redirecting..." state
+      return;
     } else {
       navigate({ to: "/login", replace: true });
     }
@@ -78,7 +80,7 @@ export default function HomePage() {
             className="px-8 text-sm font-medium"
             size="lg"
             onClick={() => action(data ? true : false)}
-            disabled={loadingTimeout || isRedirecting}
+            disabled={loadingTimeout}
           >
             {loadingTimeout
               ? "Connection timeout - Try again"
