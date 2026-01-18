@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import * as Sentry from "@sentry/react";
+import { Analytics } from "@vercel/analytics/react";
 
 import "./index.css";
 
@@ -75,6 +76,7 @@ createRoot(document.getElementById("root")!).render(
           <Sentry.ErrorBoundary fallback={<NotFound />}>
             <RouterProvider router={router} />
             <Toaster />
+            <Analytics />
           </Sentry.ErrorBoundary>
         </ThemeProvider>
       </QueryClientProvider>
