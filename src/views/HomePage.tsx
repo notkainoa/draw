@@ -69,6 +69,9 @@ export default function HomePage() {
       </footer>
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex h-fit w-full flex-col items-center gap-y-6 sm:w-1/2 px-8">
+          <span className="px-3 py-1 bg-background-hover rounded-full text-xs text-text-secondary">
+            Self Hostable Excalidraw Plus
+          </span>
           <h1 className="text-5xl font-bold text-text-primary font-virgil">Draw</h1>
           <h2 className="text-center text-2xl font-normal text-text-secondary leading-relaxed">
             The digital drawing tool that enables you to create, edit, and share
@@ -85,7 +88,7 @@ export default function HomePage() {
             {loadingTimeout
               ? "Connection timeout - Try again"
               : data
-                ? "View your pages"
+                ? "Open App"
                 : "Sign In"
             }
           </Button>
