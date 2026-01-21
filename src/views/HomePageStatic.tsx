@@ -4,10 +4,15 @@ import isAuthenticated from "@/hooks/isAuthenticated";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { getLocalUser } from "@/db/auth";
+import { useProfileOverlay } from "@/contexts/ProfileOverlayContext";
+import { User } from "lucide-react";
 
 export default function HomePageStatic() {
   const navigate = useNavigate();
   const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const { openProfile } = useProfileOverlay();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["user", "authenticated"],
@@ -16,6 +21,25 @@ export default function HomePageStatic() {
     retryDelay: 1000,
     staleTime: 30000, // 30 seconds
   });
+
+  const { data: profileData } = useQuery({
+    queryKey: ["profile"],
+    queryFn: getLocalUser,
+    enabled: data === true,
+    retry: 1,
+    retryDelay: 1000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+  });
+
+  // Extract avatar URL for better readability
+  const userMetadata = profileData?.data.session?.user.user_metadata;
+  const avatarUrl = userMetadata?.avatar_url || userMetadata?.picture;
+
+  // Reset image error when avatar URL changes
+  useEffect(() => {
+    setImageError(false);
+  }, [avatarUrl]);
 
   // Set a timeout for loading state to prevent infinite loading
   useEffect(() => {
@@ -45,8 +69,33 @@ export default function HomePageStatic() {
       navigate({ to: "/login", replace: true });
     }
   }
+
   return (
     <main className="flex h-full w-full flex-col bg-background-main p-4 font-sans">
+      {/* Account button in top-right when authenticated */}
+      {data === true && (
+        <div className="absolute top-4 right-4 z-10">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-10 w-10 rounded-full p-0"
+            onClick={openProfile}
+          >
+            {avatarUrl && !imageError ? (
+              <img
+                src={avatarUrl}
+                alt="Profile"
+                className="h-full w-full rounded-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="h-full w-full rounded-full bg-gradient-to-br from-accent-blue to-purple-600 flex items-center justify-center">
+                <User className="h-5 w-5 text-white" />
+              </div>
+            )}
+          </Button>
+        </div>
+      )}
       <footer>
         <div className="flex h-12 w-full items-center justify-center">
           <div className="flex flex-row items-center justify-center align-middle">
